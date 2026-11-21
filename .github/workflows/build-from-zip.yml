@@ -37,7 +37,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Android NDK
-        run: sdkmanager "ndk;28.2.13676358"
+        run: |
+          SDKM=$(command -v sdkmanager || ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1)
+          if [ -z "$SDKM" ]; then
+            echo "::error::sdkmanager не найден"; ls "$ANDROID_HOME" "$ANDROID_HOME/cmdline-tools" || true; exit 1
+          fi
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "ndk;28.2.13676358"
 
       - name: Download rounded font (Nunito, OFL)
         working-directory: NekoBoard
